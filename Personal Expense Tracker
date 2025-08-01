@@ -1,1 +1,78 @@
+# expense_tracker.py
+
+import json
+from datetime import datetime
+
+def load_expenses():
+    try:
+        with open("expenses.json", "r") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return []
+
+def save_expenses(expenses):
+    with open("expenses.json", "w") as f:
+        json.dump(expenses, f, indent=4)
+
+def add_expense():
+    amount = float(input("Enter amount: ₹"))
+    category = input("Enter category (e.g. Food, Travel, Bills): ")
+    note = input("Optional note: ")
+    date = input("Enter date (YYYY-MM-DD) or press enter for today: ")
+
+    if not date:
+        date = str(datetime.today().date())
+
+    expense = {"amount": amount, "category": category, "date": date, "note": note}
+    expenses = load_expenses()
+    expenses.append(expense)
+    save_expenses(expenses)
+    print("✅ Expense added!")
+
+def view_expenses():
+    expenses = load_expenses()
+    if not expenses:
+        print("No expenses recorded.")
+        return
+    for i, e in enumerate(expenses, 1):
+        print(f"{i}. ₹{e['amount']} | {e['category']} | {e['date']} | {e['note']}")
+
+def total_spent():
+    expenses = load_expenses()
+    total = sum(e['amount'] for e in expenses)
+    print(f"💰 Total Spent: ₹{total:.2f}")
+
+def summary_by_category():
+    expenses = load_expenses()
+    summary = {}
+    for e in expenses:
+        summary[e['category']] = summary.get(e['category'], 0) + e['amount']
+    for category, total in summary.items():
+        print(f"{category}: ₹{total:.2f}")
+
+def menu():
+    while True:
+        print("\n📊 Personal Expense Tracker")
+        print("1. Add Expense")
+        print("2. View Expenses")
+        print("3. Total Spent")
+        print("4. Summary by Category")
+        print("5. Exit")
+
+        choice = input("Choose an option (1-5): ")
+
+        if choice == "1":
+            add_expense()
+        elif choice == "2":
+            view_expenses()
+        elif choice == "3":
+            total_spent()
+        elif choice == "4":
+            summary_by_category()
+        elif choice == "5":
+            break
+        else:
+            print("❌ Invalid choice. Try again.")
+
+menu()
 
